@@ -1,0 +1,2079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill of Picking Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(to right, #2c3e50, #4a6572);
+            color: white;
+            padding: 25px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-title p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .logo-placeholder {
+            width: 150px;
+            height: 80px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+        
+        .logo-placeholder img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .content {
+            display: flex;
+            min-height: 700px;
+        }
+        
+        .form-section {
+            flex: 1;
+            padding: 30px;
+            border-right: 1px solid #e5e7eb;
+            background: #f8fafc;
+        }
+        
+        .preview-section {
+            flex: 1.2;
+            padding: 30px;
+            background: white;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .label-text {
+            display: inline-block;
+            min-width: 180px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 5px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .radio-option input[type="radio"] {
+            width: auto;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(to right, #27ae60, #229954);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(to right, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(to right, #f39c12, #e67e22);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .preview-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+            max-height: 700px;
+            overflow-y: auto;
+        }
+        
+        .doc-header {
+            padding: 15px 30px 10px;
+            border-bottom: 2px solid #2c3e50;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .doc-logo {
+            width: 180px;
+            height: 100px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .doc-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 5px;
+        }
+        
+        .doc-title {
+            text-align: right;
+        }
+        
+        .doc-title h1 {
+            color: #2c3e50;
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+        
+        .doc-title .subtitle {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .doc-content {
+            padding: 25px;
+        }
+        
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        
+        .info-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            border-right: 1px solid #34495e;
+        }
+        
+        .info-table th:last-child {
+            border-right: none;
+        }
+        
+        .info-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .info-table tr:hover td {
+            background: #f8f9fa;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            font-size: 18px;
+            margin: 20px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: none;
+        }
+        
+        .signature-area {
+            margin-top: 30px;
+            padding: 15px;
+            border-top: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .signature-box {
+            text-align: center;
+        }
+        
+        .signature-line {
+            width: 180px;
+            border-bottom: 1px solid #2c3e50;
+            margin: 30px auto 8px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #95a5a6;
+            font-size: 14px;
+            border-top: 1px solid #ecf0f1;
+            background: #f8f9fa;
+        }
+        
+        .action-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .validation-message {
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .validation-error {
+            color: #e74c3c;
+        }
+        
+        .validation-success {
+            color: #27ae60;
+        }
+        
+        @media (max-width: 992px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .form-section {
+                border-right: none;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+        
+        .auto-number {
+            background: #e8f4fc;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .template-text {
+            color: #bdc3c7;
+            font-style: italic;
+        }
+        
+        .readonly-field {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #2c3e50;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .warehouse-info-group {
+            background-color: #f0f7ff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            margin-bottom: 20px;
+        }
+        
+        .pdf-page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 5mm 10mm 15mm 10mm;
+            background: white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+        
+        .instructions-list {
+            padding-left: 25px;
+            margin-left: 0;
+        }
+        
+        .instructions-list li {
+            margin-bottom: 8px;
+            padding-left: 10px;
+        }
+        
+        .important-notice {
+            background-color: #fffacd;
+            border-left: 4px solid #ffd700;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 6px;
+        }
+        
+        .important-notice p {
+            font-weight: bold;
+            text-decoration: underline;
+            margin: 5px 0;
+            color: #2c3e50;
+        }
+        
+        /* 历史记录模态框样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            background: linear-gradient(to right, #2c3e50, #4a6572);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .modal-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .history-table th {
+            background: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+        }
+        
+        .history-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ecf0f1;
+            color: #2c3e50;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+        
+        .history-table tr:hover td {
+            background-color: #f5f9ff;
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #95a5a6;
+            font-style: italic;
+        }
+        
+        .timestamp {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        /* 优化按钮对齐 */
+        .action-buttons-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .action-buttons-row .btn {
+            flex: 0 0 auto;
+            margin: 0;
+        }
+        
+        /* 删除按钮样式 */
+        .delete-btn {
+            padding: 4px 8px;
+            font-size: 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .delete-btn:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+        
+        .action-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* PDF导出覆盖层样式 */
+        .pdf-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            flex-direction: column;
+        }
+        
+        .pdf-overlay-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pdf-overlay h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .pdf-overlay p {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .action-buttons-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .action-buttons-row .btn {
+                width: 100%;
+            }
+            
+            .history-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        /* 非必填字段标签样式 */
+        .optional-field-label {
+            color: #7f8c8d;
+        }
+        
+        .optional-field-label::after {
+            content: " (Optional)";
+            font-size: 12px;
+            font-weight: normal;
+            color: #95a5a6;
+        }
+        
+        /* Package Description 预览样式 */
+        .package-description-preview {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-title">
+                <h1>📋 Bill of Picking Generator</h1>
+                <p>Fill information → Generate Bill → Export PDF</p>
+            </div>
+            <div class="logo-placeholder">
+                <img id="headerLogo" alt="Company Logo">
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="form-section">
+                <h2 style="color: #2c3e50; margin-bottom: 25px;">Picking Information</h2>
+                
+                <div class="form-group">
+                    <label for="bopNumber">
+                        <span class="label-text">Bill of Picking No.:</span>
+                    </label>
+                    <input type="text" id="bopNumber" class="auto-number" readonly>
+                    <small style="color: #7f8c8d; display: block; margin-top: 5px;">Format: BOP-YYMM-sequence-random</small>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="warehouse"><span class="label-text">Warehouse:</span></label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="warehouse" value="Poland Mepro" checked>
+                                <span>Poland Mepro</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="warehouse" value="Spain Maitrox">
+                                <span>Spain Maitrox</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer"><span class="label-text">Consignee Company:</span></label>
+                        <select id="customer">
+                            <option value="">-- Select Consignee --</option>
+                            <option value="ASWO">ASWO</option>
+                            <option value="ZYMETRIC Sp. z o.o.">ZYMETRIC Sp. z o.o.</option>
+                            <option value="Aircon">Aircon</option>
+                            <option value="SALVADOR ESCODA">SALVADOR ESCODA</option>
+                            <option value="F.G. EUROPE S.A.">F.G. EUROPE S.A.</option>
+                            <option value="GORENJE">GORENJE</option>
+                            <option value="H.T.Maddocks">H.T.Maddocks</option>
+                            <option value="KLIMA-THERM">KLIMA-THERM</option>
+                            <option value="FERROLI S.P.A.">FERROLI S.P.A.</option>
+                            <option value="Stelbi S.p.A.">Stelbi S.p.A.</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="warehouse-info-group">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 16px;">Warehouse Information</h3>
+                    <div class="form-group">
+                        <label for="pickupAddress"><span class="label-text">Pickup Address:</span></label>
+                        <div class="readonly-field" id="pickupAddress">Magazynowa 8,DC5,GATE H, 55-040 Bielany Wroclawskie</div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="warehouseContact"><span class="label-text">Warehouse Contact:</span></label>
+                            <div class="readonly-field" id="warehouseContact">Sebastian Zales</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phoneNumber"><span class="label-text">Phone Number:</span></label>
+                            <div class="readonly-field" id="phoneNumber">+48 603 156 256</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="orderNo"><span class="label-text">Order No.:</span></label>
+                        <input type="text" id="orderNo" placeholder="Enter order number">
+                        <div id="orderNoValidation" class="validation-message"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="courier" class="optional-field-label"><span class="label-text">Courier:</span></label>
+                        <select id="courier">
+                            <option value="">-- Select Courier --</option>
+                            <option value="DHL">DHL</option>
+                            <option value="DPD">DPD</option>
+                            <option value="Inpost">Inpost</option>
+                            <option value="Hellmann">Hellmann</option>
+                            <option value="FedEx">FedEx</option>
+                            <option value="UPS">UPS</option>
+                            <option value="DSV">DSV</option>
+                        </select>
+                        <div id="courierValidation" class="validation-message"></div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="truckNumber" class="optional-field-label"><span class="label-text">Truck Number:</span></label>
+                        <input type="text" id="truckNumber" placeholder="Enter truck number (optional)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="waybillNo" class="optional-field-label"><span class="label-text">Way bill No.:</span></label>
+                        <input type="text" id="waybillNo" placeholder="Enter waybill number (optional)">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="estimatedPickupTime" class="optional-field-label"><span class="label-text">Estimated pickup time:</span></label>
+                    <input type="text" id="estimatedPickupTime" placeholder="e.g., 2024-05-15 14:30 (optional)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="packageDescription"><span class="label-text">Package Description:</span></label>
+                    <textarea id="packageDescription" rows="5" placeholder="Enter package description..."></textarea>
+                    <div id="packageDescriptionValidation" class="validation-message"></div>
+                    <small style="color: #7f8c8d; display: block; margin-top: 5px;">Long descriptions will be properly paginated in the PDF</small>
+                </div>
+                
+                <div class="action-buttons">
+                    <div class="action-buttons-row">
+                        <button type="button" class="btn btn-primary" id="generateBtn">
+                            📄 Generate Bill of Picking
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="resetBtn">
+                            🔄 Reset Form
+                        </button>
+                        <button type="button" class="btn btn-success" id="historyBtn">
+                            📊 View History
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px; padding: 15px; background: #e8f8f5; border-radius: 8px; border-left: 4px solid #1abc9c;">
+                    <h4 style="color: #16a085; margin-bottom: 10px;">📌 Instructions</h4>
+                    <ul class="instructions-list" style="color: #2c3e50; font-size: 13px; line-height: 1.6;">
+                        <li>Document number is generated automatically</li>
+                        <li>Click "Generate Bill of Picking" after filling all required information</li>
+                        <li>Fields marked with "(Optional)" are not required for generation</li>
+                        <li>Click "Export PDF" to save the document</li>
+                        <li>Click "View History" to see all generated records and export to Excel</li>
+                        <li>Generation time is recorded automatically</li>
+                        <li>Form data is saved automatically</li>
+                        <li>Warehouse information updates based on selection</li>
+                        <li>In history view, you can delete individual records</li>
+                        <li>PDF export now supports proper A4 formatting with optimized margins and pagination</li>
+                        <li>Long package descriptions will be properly paginated in the PDF</li>
+                    </ul>
+                </div>
+                
+                <div id="saveStatus" style="margin-top: 15px; font-size: 12px; color: #7f8c8d; text-align: center;">
+                    <span id="saveStatusText">Data saved</span>
+                </div>
+            </div>
+            
+            <div class="preview-section">
+                <h2 style="color: #2c3e50; margin-bottom: 25px;">Bill of Picking Preview</h2>
+                <div class="preview-container" id="documentPreview">
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <button type="button" class="btn btn-primary" id="exportBtn" style="width: 100%;" disabled>
+                        📥 Export as PDF
+                    </button>
+                </div>
+                
+                <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 6px; border: 1px solid #c3e6cb;">
+                    <p style="color: #155724; font-size: 12px; margin: 0;">
+                        <strong>Note:</strong> Exported PDF is optimized for A4 paper size with proper margins and pagination. Long package descriptions will be split across multiple pages.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2024 Bill of Picking System | Current time: <span id="currentTime"></span> | Total records: <span id="totalRecords">0</span></p>
+        </div>
+    </div>
+
+    <!-- 历史记录模态框 -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📊 Bill of Picking History</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="historyContent">
+                    <!-- 历史记录内容将通过JavaScript动态生成 -->
+                </div>
+                <div class="history-actions">
+                    <button type="button" class="btn btn-secondary" id="clearHistoryBtn">
+                        🗑️ Clear History
+                    </button>
+                    <button type="button" class="btn btn-success" id="exportExcelBtn">
+                        📊 Export to Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF导出覆盖层 -->
+    <div class="pdf-overlay" id="pdfOverlay" style="display: none;">
+        <div class="pdf-overlay-content">
+            <div class="spinner"></div>
+            <h3>Generating PDF...</h3>
+            <p>Please wait while the PDF is being generated.</p>
+            <p>This may take a few seconds.</p>
+        </div>
+    </div>
+
+    <!-- 引入jsPDF、html2canvas和SheetJS库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <script>
+        // 初始化数据
+        let formData = {
+            bopNumber: '',
+            warehouse: 'Poland Mepro',
+            pickupAddress: 'Magazynowa 8,DC5,GATE H, 55-040 Bielany Wroclawskie',
+            warehouseContact: 'Sebastian Zales',
+            phoneNumber: '+48 603 156 256',
+            customer: '',
+            orderNo: '',
+            packageDescription: '',
+            courier: '',
+            truckNumber: '',
+            waybillNo: '',
+            estimatedPickupTime: '',
+            timestamp: '',
+            creationDate: ''
+        };
+
+        // 仓库信息映射
+        const warehouseInfo = {
+            'Poland Mepro': {
+                pickupAddress: 'Magazynowa 8,DC5,GATE H, 55-040 Bielany Wroclawskie',
+                warehouseContact: 'Sebastian Zales',
+                phoneNumber: '+48 603 156 256'
+            },
+            'Spain Maitrox': {
+                pickupAddress: 'CALLE VILLA DE MILAGROS, NUM1 VICALVARO 28052 MADRID',
+                warehouseContact: 'Yhon Hames Forero',
+                phoneNumber: '+34 695495222'
+            }
+        };
+
+        // 公司Logo的base64编码 - 这是一个占位符Logo（请替换为您的Logo）
+        const companyLogoBase64 = 'data:image/png;base64,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';
+
+        // 序号计数器
+        let sequenceCounter = localStorage.getItem('bop_sequence') ? parseInt(localStorage.getItem('bop_sequence')) : 1;
+        
+        // 历史记录数据
+        let historyData = [];
+        
+        // 跟踪是否已生成预览
+        let isPreviewGenerated = false;
+
+        // DOM元素变量
+        let bopNumberInput, warehouseRadios, customerSelect, orderNoInput, packageDescriptionTextarea;
+        let courierSelect, truckNumberInput, waybillNoInput, estimatedPickupTimeInput;
+        let generateBtn, resetBtn, exportBtn, previewContainer, currentTimeSpan, headerLogo, saveStatusText;
+        let pickupAddressDisplay, warehouseContactDisplay, phoneNumberDisplay;
+        let historyBtn, historyModal, closeModal, clearHistoryBtn, exportExcelBtn, historyContent;
+        let totalRecordsSpan, pdfOverlay;
+
+        // 初始化
+        function init() {
+            // 获取DOM元素
+            bopNumberInput = document.getElementById('bopNumber');
+            warehouseRadios = document.querySelectorAll('input[name="warehouse"]');
+            customerSelect = document.getElementById('customer');
+            orderNoInput = document.getElementById('orderNo');
+            packageDescriptionTextarea = document.getElementById('packageDescription');
+            courierSelect = document.getElementById('courier');
+            truckNumberInput = document.getElementById('truckNumber');
+            waybillNoInput = document.getElementById('waybillNo');
+            estimatedPickupTimeInput = document.getElementById('estimatedPickupTime');
+            generateBtn = document.getElementById('generateBtn');
+            resetBtn = document.getElementById('resetBtn');
+            exportBtn = document.getElementById('exportBtn');
+            historyBtn = document.getElementById('historyBtn');
+            previewContainer = document.getElementById('documentPreview');
+            currentTimeSpan = document.getElementById('currentTime');
+            headerLogo = document.getElementById('headerLogo');
+            saveStatusText = document.getElementById('saveStatusText');
+            totalRecordsSpan = document.getElementById('totalRecords');
+            pdfOverlay = document.getElementById('pdfOverlay');
+            
+            // 获取新增字段的显示元素
+            pickupAddressDisplay = document.getElementById('pickupAddress');
+            warehouseContactDisplay = document.getElementById('warehouseContact');
+            phoneNumberDisplay = document.getElementById('phoneNumber');
+            
+            // 历史记录相关元素
+            historyModal = document.getElementById('historyModal');
+            closeModal = document.getElementById('closeModal');
+            clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            exportExcelBtn = document.getElementById('exportExcelBtn');
+            historyContent = document.getElementById('historyContent');
+            
+            // 加载Logo
+            loadLogo();
+            
+            // 设置当前时间
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+            
+            // 尝试加载保存的数据
+            const hasSavedData = loadFormDataFromLocalStorage();
+            
+            // 加载历史记录
+            loadHistoryData();
+            
+            if (!hasSavedData) {
+                // 如果没有保存的数据，生成新的编号
+                generateBOPNumber();
+            }
+            
+            // 初始化预览区域
+            initPreviewTemplate();
+            
+            // 添加事件监听器
+            setupEventListeners();
+            
+            // 初始状态不生成预览
+            isPreviewGenerated = false;
+            exportBtn.disabled = true;
+            
+            // 更新总记录数
+            updateTotalRecords();
+        }
+
+        // 初始化预览模板
+        function initPreviewTemplate() {
+            previewContainer.innerHTML = `
+                <div class="pdf-page">
+                    <div class="doc-header">
+                        <div class="doc-logo" id="previewLogo">
+                            <!-- Logo将在这里显示 -->
+                        </div>
+                        <div class="doc-title">
+                            <h1>Bill of Picking</h1>
+                            <div class="subtitle" id="previewDateInfo">
+                                <div>Creation Date: <span id="previewCreationDate" class="template-text">Click Generate to show</span></div>
+                                <div>Bill of Picking No.: <span id="previewBopNumber" class="template-text">Click Generate to show</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="doc-content">
+                        <div class="important-notice">
+                            <p>Please provide this form to the driver for picking goods.</p>
+                            <p>The picker must take the bill of picking to pick up the goods.</p>
+                        </div>
+                        
+                        <table class="info-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 35%;">Field Name</th>
+                                    <th style="width: 65%;">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Order No.</strong></td>
+                                    <td id="previewOrderNo"><span class="template-text">Click Generate to show</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Consignee Company</strong></td>
+                                    <td id="previewCustomer"><span class="template-text">Click Generate to show</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Pickup Address</strong></td>
+                                    <td id="previewPickupAddress"><span class="template-text">Click Generate to show</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Warehouse Contact</strong></td>
+                                    <td id="previewWarehouseContact"><span class="template-text">Click Generate to show</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Phone Number</strong></td>
+                                    <td id="previewPhoneNumber"><span class="template-text">Click Generate to show</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Courier</strong></td>
+                                    <td id="previewCourier"><span class="template-text">Click Generate to show</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Truck Number</strong></td>
+                                    <td id="previewTruckNumber"><span class="template-text">Click Generate to show</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Way bill No.</strong></td>
+                                    <td id="previewWaybillNo"><span class="template-text">Click Generate to show</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Estimated pickup time</strong></td>
+                                    <td id="previewPickupTime"><span class="template-text">Click Generate to show</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="section-title">Package Description</div>
+                        <div class="package-description-preview" id="previewPackageDescription">
+                            <span class="template-text">Click Generate to show</span>
+                        </div>
+                        
+                        <div class="signature-area">
+                            <div class="signature-box">
+                                <div class="signature-line"></div>
+                                <div>Prepared By</div>
+                                <div style="font-size: 12px; color: #7f8c8d; margin-top: 5px;">(Signature & Date)</div>
+                            </div>
+                            
+                            <div class="signature-box">
+                                <div class="signature-line"></div>
+                                <div>Warehouse Manager</div>
+                                <div style="font-size: 12px; color: #7f8c8d; margin-top: 5px;">(Signature & Date)</div>
+                            </div>
+                            
+                            <div class="signature-box">
+                                <div class="signature-line"></div>
+                                <div>Courier Representative</div>
+                                <div style="font-size: 12px; color: #7f8c8d; margin-top: 5px;">(Signature & Date)</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 6px; font-size: 12px; color: #7f8c8d;" id="previewTimestamp">
+                            <div><strong>Generated Time:</strong> <span class="template-text">Click Generate to show</span></div>
+                            <div style="margin-top: 5px;"><strong>Note:</strong> This document is system generated. Please verify all information before signing.</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 初始化时立即加载Logo
+            loadPreviewLogo();
+        }
+
+        // 加载Logo图片到头部和预览区域
+        function loadLogo() {
+            // 设置header logo
+            if (headerLogo) {
+                headerLogo.src = companyLogoBase64;
+                headerLogo.alt = 'Company Logo';
+                headerLogo.onerror = function() {
+                    console.error('Header logo failed to load');
+                    // 如果图片加载失败，使用备用显示
+                    headerLogo.style.display = 'none';
+                    document.querySelector('.logo-placeholder').innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#2c3e50;font-weight:bold;font-size:14px;text-align:center;padding:5px;">COMPANY<br>LOGO</div>';
+                };
+            }
+            
+            // 设置预览logo
+            loadPreviewLogo();
+        }
+
+        // 单独加载预览Logo
+        function loadPreviewLogo() {
+            const previewLogoElement = document.getElementById('previewLogo');
+            if (previewLogoElement) {
+                previewLogoElement.innerHTML = ''; // 清空现有内容
+                
+                const img = document.createElement('img');
+                img.src = companyLogoBase64;
+                img.alt = 'Company Logo';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'contain';
+                img.style.padding = '5px';
+                
+                img.onload = function() {
+                    console.log('Preview logo loaded successfully');
+                };
+                
+                img.onerror = function() {
+                    console.error('Preview logo failed to load');
+                    // 如果图片有问题，使用备用占位符
+                    previewLogoElement.innerHTML = '<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#2c3e50;font-weight:bold;font-size:14px;text-align:center;padding:5px;">COMPANY<br>LOGO</div>';
+                };
+                
+                previewLogoElement.appendChild(img);
+            }
+        }
+
+        // 更新仓库相关信息
+        function updateWarehouseInfo(warehouse) {
+            const info = warehouseInfo[warehouse] || warehouseInfo['Poland Mepro'];
+            
+            // 更新formData
+            formData.pickupAddress = info.pickupAddress;
+            formData.warehouseContact = info.warehouseContact;
+            formData.phoneNumber = info.phoneNumber;
+            
+            // 更新显示
+            if (pickupAddressDisplay) pickupAddressDisplay.textContent = info.pickupAddress;
+            if (warehouseContactDisplay) warehouseContactDisplay.textContent = info.warehouseContact;
+            if (phoneNumberDisplay) phoneNumberDisplay.textContent = info.phoneNumber;
+            
+            // 保存数据
+            saveFormDataToLocalStorage();
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 表单输入变化
+            const formInputs = [
+                orderNoInput,
+                packageDescriptionTextarea,
+                truckNumberInput,
+                waybillNoInput,
+                estimatedPickupTimeInput
+            ];
+            
+            formInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    const id = e.target.id;
+                    formData[id] = e.target.value;
+                    saveFormDataToLocalStorage();
+                });
+            });
+            
+            // 下拉菜单变化
+            customerSelect.addEventListener('change', function(e) {
+                formData.customer = e.target.value;
+                saveFormDataToLocalStorage();
+            });
+            
+            courierSelect.addEventListener('change', function(e) {
+                formData.courier = e.target.value;
+                saveFormDataToLocalStorage();
+            });
+            
+            // 单选按钮变化 - 仓库选择变化时更新相关信息
+            warehouseRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        formData.warehouse = e.target.value;
+                        updateWarehouseInfo(e.target.value);
+                    }
+                });
+            });
+
+            // 生成按钮
+            generateBtn.addEventListener('click', function() {
+                generateBillOfPicking();
+            });
+
+            // 重置按钮
+            resetBtn.addEventListener('click', resetForm);
+
+            // 导出按钮
+            exportBtn.addEventListener('click', exportToPDF);
+            
+            // 历史记录按钮
+            historyBtn.addEventListener('click', showHistory);
+            
+            // 关闭模态框
+            closeModal.addEventListener('click', closeHistoryModal);
+            
+            // 清除历史记录按钮
+            clearHistoryBtn.addEventListener('click', clearHistory);
+            
+            // 导出Excel按钮
+            exportExcelBtn.addEventListener('click', exportToExcel);
+            
+            // 页面关闭/刷新前保存数据
+            window.addEventListener('beforeunload', () => {
+                saveFormDataToLocalStorage();
+            });
+            
+            // 点击模态框外部关闭
+            historyModal.addEventListener('click', (e) => {
+                if (e.target === historyModal) {
+                    closeHistoryModal();
+                }
+            });
+            
+            // 历史记录模态框的事件委托，用于处理删除按钮点击
+            if (historyContent) {
+                historyContent.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('delete-history-btn')) {
+                        const recordId = parseInt(e.target.getAttribute('data-id'));
+                        deleteHistoryRecord(recordId);
+                    }
+                });
+            }
+        }
+
+        // 数据保存功能
+        function saveFormDataToLocalStorage() {
+            try {
+                localStorage.setItem('bop_form_data', JSON.stringify(formData));
+                localStorage.setItem('bop_sequence', sequenceCounter.toString());
+                showSaveStatus('Data saved', '#27ae60');
+            } catch (error) {
+                console.error('Save error:', error);
+                showSaveStatus('Save failed', '#e74c3c');
+            }
+        }
+
+        // 加载历史记录数据
+        function loadHistoryData() {
+            try {
+                const savedHistory = localStorage.getItem('bop_history');
+                if (savedHistory) {
+                    historyData = JSON.parse(savedHistory);
+                }
+            } catch (error) {
+                console.error('Load history error:', error);
+                historyData = [];
+            }
+        }
+
+        // 保存历史记录
+        function saveHistoryData() {
+            try {
+                localStorage.setItem('bop_history', JSON.stringify(historyData));
+            } catch (error) {
+                console.error('Save history error:', error);
+            }
+        }
+
+        // 添加历史记录
+        function addToHistory() {
+            const historyRecord = {
+                id: Date.now(),
+                timestamp: new Date().toISOString(),
+                displayTime: new Date().toLocaleString('en-US'),
+                ...formData
+            };
+            
+            // 添加到历史记录数组的开头（最新的在前面）
+            historyData.unshift(historyRecord);
+            
+            // 限制历史记录数量，最多保存100条
+            if (historyData.length > 100) {
+                historyData = historyData.slice(0, 100);
+            }
+            
+            // 保存到localStorage
+            saveHistoryData();
+            
+            // 更新总记录数
+            updateTotalRecords();
+        }
+
+        // 删除单个历史记录
+        function deleteHistoryRecord(recordId) {
+            if (confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
+                // 找到记录索引
+                const index = historyData.findIndex(record => record.id === recordId);
+                
+                if (index !== -1) {
+                    // 从数组中删除
+                    historyData.splice(index, 1);
+                    
+                    // 保存更新后的历史记录
+                    saveHistoryData();
+                    
+                    // 更新总记录数
+                    updateTotalRecords();
+                    
+                    // 重新显示历史记录
+                    showHistory();
+                    
+                    alert('Record deleted successfully!');
+                } else {
+                    alert('Record not found!');
+                }
+            }
+        }
+
+        // 更新总记录数显示
+        function updateTotalRecords() {
+            if (totalRecordsSpan) {
+                totalRecordsSpan.textContent = historyData.length;
+            }
+        }
+
+        function loadFormDataFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('bop_form_data');
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    
+                    // 更新表单数据，但保留自动生成的bopNumber
+                    const currentBopNumber = formData.bopNumber;
+                    Object.assign(formData, parsedData);
+                    
+                    // 重要：不从保存的数据中恢复bopNumber，因为每次需要重新生成
+                    if (!currentBopNumber) {
+                        generateBOPNumber(); // 如果没有当前编号，生成新的
+                    } else {
+                        formData.bopNumber = currentBopNumber;
+                    }
+                    
+                    // 更新表单输入框
+                    if (formData.orderNo) orderNoInput.value = formData.orderNo;
+                    if (formData.packageDescription) packageDescriptionTextarea.value = formData.packageDescription;
+                    if (formData.truckNumber) truckNumberInput.value = formData.truckNumber;
+                    if (formData.waybillNo) waybillNoInput.value = formData.waybillNo;
+                    if (formData.estimatedPickupTime) estimatedPickupTimeInput.value = formData.estimatedPickupTime;
+                    if (formData.customer) customerSelect.value = formData.customer;
+                    if (formData.courier) courierSelect.value = formData.courier;
+                    
+                    // 更新单选按钮
+                    if (formData.warehouse) {
+                        document.querySelector(`input[name="warehouse"][value="${formData.warehouse}"]`).checked = true;
+                    }
+                    
+                    // 更新仓库相关信息显示
+                    if (formData.pickupAddress && pickupAddressDisplay) {
+                        pickupAddressDisplay.textContent = formData.pickupAddress;
+                    }
+                    if (formData.warehouseContact && warehouseContactDisplay) {
+                        warehouseContactDisplay.textContent = formData.warehouseContact;
+                    }
+                    if (formData.phoneNumber && phoneNumberDisplay) {
+                        phoneNumberDisplay.textContent = formData.phoneNumber;
+                    }
+                    
+                    // 加载保存的序号
+                    const savedSequence = localStorage.getItem('bop_sequence');
+                    if (savedSequence) {
+                        sequenceCounter = parseInt(savedSequence);
+                    }
+                    
+                    showSaveStatus('Data loaded', '#3498db');
+                    return true;
+                }
+            } catch (error) {
+                console.error('Load error:', error);
+                showSaveStatus('Load failed', '#e74c3c');
+            }
+            return false;
+        }
+
+        function showSaveStatus(message, color) {
+            saveStatusText.textContent = message;
+            saveStatusText.style.color = color;
+            
+            // 3秒后恢复默认状态
+            setTimeout(() => {
+                saveStatusText.textContent = 'Data saved';
+                saveStatusText.style.color = '#7f8c8d';
+            }, 3000);
+        }
+
+        // 生成BOP编号
+        function generateBOPNumber() {
+            const now = new Date();
+            const year = now.getFullYear().toString().slice(-2);
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            
+            // 递增序号
+            const sequence = String(sequenceCounter).padStart(3, '0');
+            sequenceCounter++;
+            
+            // 生成三位随机数
+            const random = String(Math.floor(Math.random() * 900) + 100);
+            
+            const bopNumber = `BOP-${year}${month}-${sequence}-${random}`;
+            
+            bopNumberInput.value = bopNumber;
+            formData.bopNumber = bopNumber;
+            
+            // 保存数据
+            saveFormDataToLocalStorage();
+        }
+
+        // 更新当前时间显示
+        function updateCurrentTime() {
+            const now = new Date();
+            currentTimeSpan.textContent = now.toLocaleString('en-US');
+        }
+
+        // 表单验证 - 修改为仅验证必填字段
+        function validateForm() {
+            const requiredFields = [
+                { id: 'orderNo', name: 'Order No.' },
+                { id: 'packageDescription', name: 'Package Description' },
+                { id: 'customer', name: 'Consignee Company' }
+            ];
+            
+            let isValid = true;
+            const missingFields = [];
+            
+            requiredFields.forEach(field => {
+                const value = formData[field.id];
+                if (!value || value.trim() === '') {
+                    isValid = false;
+                    missingFields.push(field.name);
+                }
+            });
+            
+            if (!isValid) {
+                alert(`Please fill the following required fields:\n${missingFields.join('\n')}`);
+                return false;
+            }
+            
+            return true;
+        }
+
+        // 生成Bill of Picking - 更新预览区域
+        function generateBillOfPicking() {
+            // 验证表单（仅验证必填字段）
+            if (!validateForm()) {
+                return;
+            }
+            
+            // 设置创建日期和生成时间
+            const now = new Date();
+            formData.creationDate = now.toLocaleDateString('en-US');
+            formData.timestamp = now.toLocaleString('en-US');
+            
+            // 添加历史记录
+            addToHistory();
+            
+            // 更新预览区域
+            updatePreview();
+            
+            // 更新状态
+            isPreviewGenerated = true;
+            exportBtn.disabled = false;
+            showSaveStatus('Preview generated', '#27ae60');
+        }
+
+        // 更新预览区域 - 修改为非必填字段为空时显示"To be Determined"
+        function updatePreview() {
+            // 获取预览元素
+            const previewBopNumber = document.getElementById('previewBopNumber');
+            const previewPickupAddress = document.getElementById('previewPickupAddress');
+            const previewWarehouseContact = document.getElementById('previewWarehouseContact');
+            const previewPhoneNumber = document.getElementById('previewPhoneNumber');
+            const previewCustomer = document.getElementById('previewCustomer');
+            const previewOrderNo = document.getElementById('previewOrderNo');
+            const previewCourier = document.getElementById('previewCourier');
+            const previewTruckNumber = document.getElementById('previewTruckNumber');
+            const previewWaybillNo = document.getElementById('previewWaybillNo');
+            const previewPickupTime = document.getElementById('previewPickupTime');
+            const previewPackageDescription = document.getElementById('previewPackageDescription');
+            const previewDate = document.getElementById('previewCreationDate');
+            const previewTimestamp = document.getElementById('previewTimestamp');
+            
+            // 更新各个字段
+            if (previewDate) previewDate.textContent = formData.creationDate || 'Not generated';
+            if (previewBopNumber) previewBopNumber.textContent = formData.bopNumber || 'Not generated';
+            if (previewPickupAddress) previewPickupAddress.textContent = formData.pickupAddress || 'Not set';
+            if (previewWarehouseContact) previewWarehouseContact.textContent = formData.warehouseContact || 'Not set';
+            if (previewPhoneNumber) previewPhoneNumber.textContent = formData.phoneNumber || 'Not set';
+            if (previewCustomer) previewCustomer.textContent = formData.customer || 'Not selected';
+            if (previewOrderNo) previewOrderNo.textContent = formData.orderNo || 'Not entered';
+            
+            // 处理非必填字段：如果为空，显示"To be Determined"
+            if (previewCourier) previewCourier.textContent = formData.courier ? formData.courier : 'To be Determined';
+            if (previewTruckNumber) previewTruckNumber.textContent = formData.truckNumber ? formData.truckNumber : 'To be Determined';
+            if (previewWaybillNo) previewWaybillNo.textContent = formData.waybillNo ? formData.waybillNo : 'To be Determined';
+            if (previewPickupTime) previewPickupTime.textContent = formData.estimatedPickupTime ? formData.estimatedPickupTime : 'To be Determined';
+            
+            // 处理Package Description
+            if (previewPackageDescription) {
+                if (formData.packageDescription) {
+                    // 保留换行符并显示文本
+                    const description = formData.packageDescription;
+                    previewPackageDescription.innerHTML = description.replace(/\n/g, '<br>');
+                } else {
+                    previewPackageDescription.innerHTML = '<span class="template-text">Click Generate to show</span>';
+                }
+            }
+            
+            // 更新时间戳
+            if (previewTimestamp) {
+                previewTimestamp.innerHTML = `
+                    <div><strong>Generated Time:</strong> ${formData.timestamp || 'Not generated'}</div>
+                    <div style="margin-top: 5px;"><strong>Note:</strong> This document is system generated. Please verify all information before signing.</div>
+                `;
+            }
+        }
+
+        // 重置表单
+        function resetForm() {
+            if (confirm('Reset form? All entered content will be cleared, but document number will continue.')) {
+                // 重置表单数据（保留编号）
+                formData = {
+                    bopNumber: '',
+                    warehouse: 'Poland Mepro',
+                    pickupAddress: 'Magazynowa 8,DC5,GATE H, 55-040 Bielany Wroclawskie',
+                    warehouseContact: 'Sebastian Zales',
+                    phoneNumber: '+48 603 156 256',
+                    customer: '',
+                    orderNo: '',
+                    packageDescription: '',
+                    courier: '',
+                    truckNumber: '',
+                    waybillNo: '',
+                    estimatedPickupTime: '',
+                    timestamp: '',
+                    creationDate: ''
+                };
+                
+                // 重置输入框
+                orderNoInput.value = '';
+                packageDescriptionTextarea.value = '';
+                truckNumberInput.value = '';
+                waybillNoInput.value = '';
+                estimatedPickupTimeInput.value = '';
+                customerSelect.value = '';
+                courierSelect.value = '';
+                
+                // 重置单选按钮
+                document.querySelector('input[name="warehouse"][value="Poland Mepro"]').checked = true;
+                
+                // 更新仓库相关信息显示
+                if (pickupAddressDisplay) pickupAddressDisplay.textContent = formData.pickupAddress;
+                if (warehouseContactDisplay) warehouseContactDisplay.textContent = formData.warehouseContact;
+                if (phoneNumberDisplay) phoneNumberDisplay.textContent = formData.phoneNumber;
+                
+                // 生成新的编号
+                generateBOPNumber();
+                
+                // 清除localStorage中的数据
+                localStorage.removeItem('bop_form_data');
+                
+                // 重置预览区域
+                initPreviewTemplate();
+                loadLogo(); // 重新加载Logo
+                
+                // 重置状态
+                isPreviewGenerated = false;
+                exportBtn.disabled = true;
+                
+                alert('Form reset, new document number generated!');
+            }
+        }
+
+        // 显示历史记录
+        function showHistory() {
+            if (historyData.length === 0) {
+                historyContent.innerHTML = `
+                    <div class="no-data">
+                        <h4>No history records found</h4>
+                        <p>Generate your first Bill of Picking to see history here.</p>
+                    </div>
+                `;
+            } else {
+                let tableHTML = `
+                    <p>Total records: <strong>${historyData.length}</strong></p>
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Generated Time</th>
+                                <th>Bill of Picking No.</th>
+                                <th>Order No.</th>
+                                <th>Consignee Company</th>
+                                <th>Courier</th>
+                                <th>Truck Number</th>
+                                <th>Way bill No.</th>
+                                <th>Estimated Pickup Time</th>
+                                <th style="text-align: center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                historyData.forEach(record => {
+                    // 处理非必填字段的显示
+                    const courierDisplay = record.courier ? record.courier : 'To be Determined';
+                    const truckNumberDisplay = record.truckNumber ? record.truckNumber : 'To be Determined';
+                    const waybillNoDisplay = record.waybillNo ? record.waybillNo : 'To be Determined';
+                    const pickupTimeDisplay = record.estimatedPickupTime ? record.estimatedPickupTime : 'To be Determined';
+                    
+                    tableHTML += `
+                        <tr>
+                            <td><span class="timestamp">${record.displayTime}</span></td>
+                            <td>${record.bopNumber}</td>
+                            <td>${record.orderNo}</td>
+                            <td>${record.customer}</td>
+                            <td>${courierDisplay}</td>
+                            <td>${truckNumberDisplay}</td>
+                            <td>${waybillNoDisplay}</td>
+                            <td>${pickupTimeDisplay}</td>
+                            <td class="action-cell">
+                                <button class="delete-btn delete-history-btn" data-id="${record.id}" title="Delete this record">
+                                    🗑️
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += `
+                        </tbody>
+                    </table>
+                `;
+                
+                historyContent.innerHTML = tableHTML;
+            }
+            
+            // 显示模态框
+            historyModal.style.display = 'flex';
+        }
+
+        // 关闭历史记录模态框
+        function closeHistoryModal() {
+            historyModal.style.display = 'none';
+        }
+
+        // 清除历史记录
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all history records? This action cannot be undone.')) {
+                historyData = [];
+                saveHistoryData();
+                updateTotalRecords();
+                showHistory(); // 刷新显示
+                alert('History cleared successfully!');
+            }
+        }
+
+        // 导出到Excel
+        function exportToExcel() {
+            if (historyData.length === 0) {
+                alert('No history records to export.');
+                return;
+            }
+            
+            try {
+                // 准备数据
+                const excelData = historyData.map(record => ({
+                    'Generated Time': record.displayTime,
+                    'Bill of Picking No.': record.bopNumber,
+                    'Creation Date': record.creationDate,
+                    'Warehouse': record.warehouse,
+                    'Pickup Address': record.pickupAddress,
+                    'Warehouse Contact': record.warehouseContact,
+                    'Phone Number': record.phoneNumber,
+                    'Order No.': record.orderNo,
+                    'Consignee Company': record.customer,
+                    'Courier': record.courier ? record.courier : 'To be Determined',
+                    'Truck Number': record.truckNumber ? record.truckNumber : 'To be Determined',
+                    'Way bill No.': record.waybillNo ? record.waybillNo : 'To be Determined',
+                    'Estimated Pickup Time': record.estimatedPickupTime ? record.estimatedPickupTime : 'To be Determined',
+                    'Package Description': record.packageDescription.substring(0, 200) + (record.packageDescription.length > 200 ? '...' : '')
+                }));
+                
+                // 创建工作表
+                const ws = XLSX.utils.json_to_sheet(excelData);
+                
+                // 创建工作簿
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Bill of Picking History');
+                
+                // 生成文件名
+                const now = new Date();
+                const dateStr = now.toISOString().split('T')[0];
+                const fileName = `Bill_of_Picking_History_${dateStr}.xlsx`;
+                
+                // 导出文件
+                XLSX.writeFile(wb, fileName);
+                
+                alert(`✅ Excel file "${fileName}" exported successfully with ${historyData.length} records!`);
+                
+            } catch (error) {
+                console.error('Excel export error:', error);
+                alert('Error exporting Excel file. Please try again.');
+            }
+        }
+
+        // ==============================
+        // PDF导出函数（修正版）- 修复三个问题
+        // ==============================
+        
+        async function exportToPDF() {
+            if (!isPreviewGenerated) {
+                alert('Please generate preview first!');
+                return;
+            }
+            
+            try {
+                // 禁用按钮，显示加载状态
+                exportBtn.disabled = true;
+                exportBtn.innerHTML = '⏳ Generating...';
+                pdfOverlay.style.display = 'flex';
+                
+                // 创建PDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                // A4尺寸和边距
+                const pdfWidth = 210; // A4宽度(mm)
+                const pdfHeight = 297; // A4高度(mm)
+                const margin = 15; // 边距(mm)
+                const contentWidth = pdfWidth - (2 * margin);
+                let currentY = margin;
+                
+                // 1. 添加页眉（Logo和标题）- 修复Logo变形问题
+                currentY = await addHeaderToPDF(pdf, margin, currentY, contentWidth);
+                
+                // 2. 添加重要通知
+                currentY = addImportantNoticeToPDF(pdf, margin, currentY, contentWidth, pdfHeight);
+                
+                // 3. 添加表格
+                currentY = addTableToPDF(pdf, margin, currentY, contentWidth, pdfHeight);
+                
+                // 4. 在Package Description之前增加间距（修复问题1）
+                currentY += 8; // 增加8mm间距
+                
+                // 5. 添加Package Description（修复分页问题）
+                currentY = addPackageDescriptionToPDF(pdf, margin, currentY, contentWidth, pdfHeight, formData.packageDescription);
+                
+                // 6. 添加签名区域
+                currentY = addSignatureAreaToPDF(pdf, margin, currentY, contentWidth, pdfHeight);
+                
+                // 7. 添加页脚 - 修复问题2（右侧间距）
+                addFooterToPDF(pdf, margin, pdfWidth, pdfHeight);
+                
+                // 保存PDF
+                const fileName = `Bill_of_Picking_${formData.bopNumber.replace(/[\/\\?%*:|"<>]/g, '_')}.pdf`;
+                pdf.save(fileName);
+                
+                // 隐藏加载状态
+                pdfOverlay.style.display = 'none';
+                
+                const pageCount = pdf.internal.getNumberOfPages();
+                alert(`✅ PDF file "${fileName}" exported successfully! (${pageCount} page${pageCount > 1 ? 's' : ''})`);
+                
+            } catch (error) {
+                console.error('Export PDF error:', error);
+                pdfOverlay.style.display = 'none';
+                alert('PDF export error: ' + error.message);
+            } finally {
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = '📥 Export as PDF';
+            }
+        }
+
+        // 辅助函数：添加页眉到PDF - 修复Logo变形问题
+        async function addHeaderToPDF(pdf, margin, currentY, contentWidth) {
+            let logoWidthMM = 40; // 固定宽度40mm，避免太宽
+            let logoHeightMM = 25;
+            
+            try {
+                const img = new Image();
+                img.src = companyLogoBase64;
+                
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                });
+                
+                const imgWidth = img.naturalWidth || img.width;
+                const imgHeight = img.naturalHeight || img.height;
+                
+                if (imgWidth && imgHeight) {
+                    // 计算保持宽高比的高度
+                    const aspectRatio = imgHeight / imgWidth;
+                    logoHeightMM = logoWidthMM * aspectRatio;
+                    
+                    // 限制最大高度为35mm
+                    if (logoHeightMM > 35) {
+                        logoHeightMM = 35;
+                        // 如果高度受限，则重新计算宽度以保持比例
+                        logoWidthMM = logoHeightMM / aspectRatio;
+                    }
+                    
+                    // 限制最小高度为15mm
+                    if (logoHeightMM < 15) {
+                        logoHeightMM = 15;
+                        logoWidthMM = logoHeightMM / aspectRatio;
+                    }
+                    
+                    console.log(`Logo尺寸: ${logoWidthMM}mm x ${logoHeightMM}mm (原始: ${imgWidth}px x ${imgHeight}px)`);
+                }
+                
+                let imageFormat = 'PNG';
+                if (companyLogoBase64.includes('image/jpeg') || companyLogoBase64.includes('image/jpg')) {
+                    imageFormat = 'JPEG';
+                }
+                
+                // 添加Logo，保持宽高比
+                pdf.addImage(companyLogoBase64, imageFormat, margin, currentY, logoWidthMM, logoHeightMM);
+                
+            } catch (error) {
+                console.log('无法添加Logo图片，使用占位符', error);
+                pdf.setDrawColor(52, 152, 219);
+                pdf.setFillColor(240, 248, 255);
+                pdf.rect(margin, currentY, logoWidthMM, logoHeightMM, 'F');
+                pdf.setFontSize(10);
+                pdf.setTextColor(52, 152, 219);
+                pdf.text("COMPANY LOGO", margin + logoWidthMM/2, currentY + logoHeightMM/2, { align: "center", baseline: "middle" });
+            }
+            
+            // 添加标题 - 向右移动以给Logo留出空间
+            const titleX = margin + logoWidthMM + 10; // Logo右侧10mm处
+            pdf.setFontSize(24);
+            pdf.text("Bill of Picking", margin + contentWidth, currentY + 5, { align: "right" });
+            
+            // 添加日期和编号
+            pdf.setFontSize(10);
+            let titleYPos = currentY + logoHeightMM - 15;
+            pdf.text(`Creation Date: ${formData.creationDate}`, margin + contentWidth, titleYPos, { align: "right" });
+            titleYPos += 5;
+            pdf.text(`Bill of Picking No.: ${formData.bopNumber}`, margin + contentWidth, titleYPos, { align: "right" });
+            
+            return currentY + logoHeightMM + 10;
+        }
+
+        // 辅助函数：添加重要通知到PDF
+        function addImportantNoticeToPDF(pdf, margin, currentY, contentWidth, pdfHeight) {
+            if (currentY > pdfHeight - margin - 30) {
+                pdf.addPage();
+                currentY = margin;
+            }
+        // 增加矩形高度，使文本看起来更居中
+        const rectHeight = 18; // 从15增加到18mm
+            
+            pdf.setFillColor(255, 250, 205);
+            pdf.rect(margin, currentY, contentWidth, 15, 'F');
+            pdf.setFontSize(10);
+            pdf.setFont("helvetica", "bold");
+        // 计算文本的垂直位置，使其在矩形中更居中
+        const textStartY = currentY + (rectHeight / 2) - 3; // 从中心向上偏移3mm
+        const lineSpacing = 7; // 行间距
+            pdf.text("Please provide this form to the driver for picking goods.", margin + 5,  textStartY);
+            pdf.text("The picker must take the bill of picking to pick up the goods.", margin + 5, textStartY + lineSpacing);
+            
+        return currentY + rectHeight + 10; // 返回下个元素的Y位置
+        }
+
+        // 辅助函数：添加表格到PDF
+        function addTableToPDF(pdf, margin, currentY, contentWidth, pdfHeight) {
+            pdf.setFont("helvetica", "bold");
+            pdf.setFillColor(44, 62, 80);
+            pdf.rect(margin, currentY, contentWidth, 10, 'F');
+            pdf.setTextColor(255, 255, 255);
+            pdf.text("Field Name", margin + 5, currentY + 7);
+            pdf.text("Details", margin + contentWidth/2, currentY + 7);
+            
+            currentY += 10;
+            pdf.setDrawColor(200, 200, 200);
+            pdf.setTextColor(0, 0, 0);
+            pdf.setFont("helvetica", "normal");
+            
+            const tableData = [
+                { label: "Order No.", value: formData.orderNo },
+                { label: "Consignee Company", value: formData.customer },
+                { label: "Pickup Address", value: formData.pickupAddress },
+                { label: "Warehouse Contact", value: formData.warehouseContact },
+                { label: "Phone Number", value: formData.phoneNumber },
+                { label: "Courier", value: formData.courier ? formData.courier : "To be Determined" },
+                { label: "Truck Number", value: formData.truckNumber ? formData.truckNumber : "To be Determined" },
+                { label: "Way bill No.", value: formData.waybillNo ? formData.waybillNo : "To be Determined" },
+                { label: "Estimated pickup time", value: formData.estimatedPickupTime ? formData.estimatedPickupTime : "To be Determined" }
+            ];
+            
+            tableData.forEach(row => {
+                if (currentY > pdfHeight - margin - 40) {
+                    pdf.addPage();
+                    currentY = margin;
+                }
+                
+                pdf.line(margin, currentY, margin + contentWidth, currentY);
+                pdf.text(row.label, margin + 5, currentY + 7);
+                
+                const maxLineLength = 50;
+                let valueText = row.value || "Not set";
+                
+                if (valueText.length > maxLineLength) {
+                    const lines = pdf.splitTextToSize(valueText, contentWidth/2 - 10);
+                    pdf.text(lines, margin + contentWidth/2, currentY + 7);
+                    currentY += (lines.length * 7);
+                } else {
+                    pdf.text(valueText, margin + contentWidth/2, currentY + 7);
+                    currentY += 10;
+                }
+            });
+            
+            return currentY;
+        }
+
+        // 辅助函数：添加Package Description到PDF
+        function addPackageDescriptionToPDF(pdf, margin, currentY, contentWidth, pdfHeight, description) {
+            // 检查是否需要新页面
+            if (currentY > pdfHeight - margin - 80) {
+                pdf.addPage();
+                currentY = margin;
+            }
+            
+            pdf.setFont("helvetica", "bold");
+            pdf.text("Package Description", margin, currentY);
+            currentY += 7;
+            
+            pdf.setFont("helvetica", "normal");
+            
+            const packageText = description || "No description provided";
+            const packageLines = pdf.splitTextToSize(packageText, contentWidth - 10);
+            const lineHeight = 7;
+            const padding = 5;
+            const borderHeight = 5;
+            
+            // 计算第一页能显示多少行
+            const availableHeightFirstPage = pdfHeight - margin - currentY - 60; // 60为签名区域预留空间
+            const maxLinesFirstPage = Math.floor(availableHeightFirstPage / lineHeight);
+            
+            let linesToShow = packageLines.slice(0, maxLinesFirstPage);
+            let lineIndex = maxLinesFirstPage;
+            let isFirstPage = true;
+            
+            while (linesToShow.length > 0) {
+                // 计算当前页的文本高度
+                const textHeight = linesToShow.length * lineHeight + padding * 2;
+                const boxHeight = textHeight;
+                
+                // 绘制边框
+                pdf.setDrawColor(200, 200, 200);
+                pdf.rect(margin, currentY, contentWidth, boxHeight, 'S');
+                
+                // 绘制文本
+                pdf.text(linesToShow, margin + 5, currentY + 7);
+                
+                // 更新位置
+                currentY += boxHeight + 10;
+                
+                // 如果还有更多行，创建新页面
+                if (lineIndex < packageLines.length) {
+                    pdf.addPage();
+                    currentY = margin;
+                    
+                    // 在新页面上添加标题
+                    pdf.setFont("helvetica", "bold");
+                    pdf.text("Package Description (continued)", margin, currentY);
+                    pdf.setFont("helvetica", "normal");
+                    currentY += 7;
+                    
+                    // 计算新页面能显示多少行
+                    const availableHeight = pdfHeight - margin - currentY - 60;
+                    const maxLinesThisPage = Math.floor(availableHeight / lineHeight);
+                    
+                    linesToShow = packageLines.slice(lineIndex, lineIndex + maxLinesThisPage);
+                    lineIndex += maxLinesThisPage;
+                    isFirstPage = false;
+                } else {
+                    linesToShow = [];
+                }
+            }
+            
+            return currentY;
+        }
+
+        // 辅助函数：添加签名区域到PDF
+        function addSignatureAreaToPDF(pdf, margin, currentY, contentWidth, pdfHeight) {
+            // 检查是否需要新页面
+            if (currentY > pdfHeight - margin - 50) {
+                pdf.addPage();
+                currentY = margin;
+            }
+            
+            pdf.setDrawColor(200, 200, 200);
+            pdf.line(margin, currentY, margin + contentWidth, currentY);
+            currentY += 10;
+            
+            const signatureWidth = contentWidth / 3;
+            
+            // Prepared By
+            pdf.line(margin, currentY, margin + signatureWidth, currentY);
+            pdf.text("Prepared By", margin + signatureWidth/2, currentY + 15, { align: "center" });
+            pdf.setFontSize(8);
+            pdf.text("(Signature & Date)", margin + signatureWidth/2, currentY + 22, { align: "center" });
+            
+            // Warehouse Manager
+            pdf.line(margin + signatureWidth, currentY, margin + (2 * signatureWidth), currentY);
+            pdf.setFontSize(10);
+            pdf.text("Warehouse Manager", margin + signatureWidth + signatureWidth/2, currentY + 15, { align: "center" });
+            pdf.setFontSize(8);
+            pdf.text("(Signature & Date)", margin + signatureWidth + signatureWidth/2, currentY + 22, { align: "center" });
+            
+            // Courier Representative
+            pdf.line(margin + (2 * signatureWidth), currentY, margin + contentWidth, currentY);
+            pdf.setFontSize(10);
+            pdf.text("Courier Representative", margin + (2 * signatureWidth) + signatureWidth/2, currentY + 15, { align: "center" });
+            pdf.setFontSize(8);
+            pdf.text("(Signature & Date)", margin + (2 * signatureWidth) + signatureWidth/2, currentY + 22, { align: "center" });
+            
+            return currentY + 40;
+        }
+
+        // 辅助函数：添加页脚到PDF - 修复右侧间距问题
+        function addFooterToPDF(pdf, margin, pdfWidth, pdfHeight) {
+            const footerRightMargin = margin + 15; // 右侧增加15mm间距
+            
+            pdf.setFontSize(8);
+            pdf.setTextColor(100, 100, 100);
+            pdf.text(`Document: ${formData.bopNumber}`, margin, pdfHeight - 10);
+            pdf.text(`Generated: ${formData.timestamp}`, pdfWidth - footerRightMargin, pdfHeight - 10, { align: "right" });
+            
+            const pageCount = pdf.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                pdf.setPage(i);
+                pdf.text(`Page ${i} of ${pageCount}`, pdfWidth/2, pdfHeight - 10, { align: "center" });
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
